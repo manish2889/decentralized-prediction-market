@@ -72,7 +72,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Contact
 
-Your Name - http://t.me/callmemanish
+Telegram - http://t.me/callmemanish
 
 Project Link: https://github.com/manish2889/decentralized-prediction-market
 
