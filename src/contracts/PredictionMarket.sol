@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
 contract PredictionMarket {
     struct Market {
         string question;
@@ -13,8 +15,15 @@ contract PredictionMarket {
     Market[] public markets;
     address public owner;
 
+    AggregatorV3Interface internal ethPriceFeed;
+    AggregatorV3Interface internal btcPriceFeed;
+
     constructor() {
         owner = msg.sender;
+        // Ethereum price feed on Mainnet
+        ethPriceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+        // Bitcoin price feed on Mainnet
+        btcPriceFeed = AggregatorV3Interface(0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c);
     }
 
     function createMarket(string memory _question) public {
@@ -65,5 +74,11 @@ contract PredictionMarket {
         require(_marketId < markets.length, "Market does not exist");
         Market storage market = markets[_marketId];
         return (market.question, market.totalBets, market.resolved, market.outcome);
+    }
+
+    function getLatestPrices() public view returns (int256 ethPrice, int256 btcPrice) {
+        (, int256 ethPrice,,,) = ethPriceFeed.latestRoundData();
+        (, int256 btcPrice,,,) = btcPriceFeed.latestRoundData();
+        return (ethPrice, btcPrice);
     }
 }

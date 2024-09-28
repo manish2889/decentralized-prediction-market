@@ -10,35 +10,32 @@ const PredictionForm = ({ selectedMarket, marketId }) => {
   const [prediction, setPrediction] = useState('');
   const [betAmount, setBetAmount] = useState('');
   const [analysis, setAnalysis] = useState('');
-  const [ethPrice, setEthPrice] = useState(null);
+  const [ethPrice, setEthPrice] = useState(0);
+  const [btcPrice, setBtcPrice] = useState(0);
 
   useEffect(() => {
-    fetchEthPrice();
+    fetchPrices();
   }, []);
 
-  const fetchEthPrice = async () => {
+  const fetchPrices = async () => {
     try {
-      const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      // Using CoinGecko API to fetch latest prices
+      const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum,bitcoin&vs_currencies=usd');
       setEthPrice(response.data.ethereum.usd);
+      setBtcPrice(response.data.bitcoin.usd);
     } catch (error) {
-      console.error('Error fetching ETH price:', error);
+      console.error('Error fetching prices:', error);
     }
   };
 
   const getAnalysis = async () => {
     try {
-      const prompt = `
-        Provide a brief analysis and potential outcomes for the following prediction market question: 
-        "${selectedMarket.question}"
-        
-        Current Ethereum price: $${ethPrice}
-        
-        Consider market trends, current events, and potential impacts on the outcome.
-      `;
-
       const response = await axios.post(`${API_URL}/chat/completions`, {
         model: LLM_MODEL_NAME,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ 
+          role: 'user', 
+          content: `Provide a brief analysis and potential outcomes for the following prediction market question: ${selectedMarket.question}. Current ETH price: $${ethPrice}, Current BTC price: $${btcPrice}` 
+        }],
         max_tokens: 150,
       }, {
         headers: {
@@ -69,9 +66,8 @@ const PredictionForm = ({ selectedMarket, marketId }) => {
   return (
     <div className="mb-4">
       <h3 className="text-lg font-semibold">{selectedMarket.question}</h3>
-      {ethPrice && (
-        <p className="text-sm text-gray-600 mb-2">Current ETH Price: ${ethPrice}</p>
-      )}
+      <p>Current ETH Price: ${ethPrice}</p>
+      <p>Current BTC Price: ${btcPrice}</p>
       <button
         onClick={getAnalysis}
         className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"

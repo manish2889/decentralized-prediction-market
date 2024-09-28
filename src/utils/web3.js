@@ -11,25 +11,29 @@ const initWeb3 = async () => {
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = PredictionMarketABI.networks[networkId];
-      if (deployedNetwork) {
-        predictionMarketContract = new web3.eth.Contract(
-          PredictionMarketABI.abi,
-          deployedNetwork.address
-        );
-      } else {
-        console.error('Contract not deployed to detected network.');
-        // Handle the error, maybe update UI to inform user
-      }
+      predictionMarketContract = new web3.eth.Contract(
+        PredictionMarketABI.abi,
+        deployedNetwork && deployedNetwork.address,
+      );
     } catch (error) {
-      console.error("User denied account access or wrong network");
-      // Handle the error, maybe update UI to prompt user to connect
+      console.error("User denied account access");
     }
   } else if (window.web3) {
     web3 = new Web3(window.web3.currentProvider);
   } else {
     console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
-    // Handle the case where the user doesn't have web3 installed
   }
 };
 
-export { web3, predictionMarketContract, initWeb3 };
+const getLatestPrices = async () => {
+  if (!predictionMarketContract) {
+    throw new Error("Contract not initialized");
+  }
+  const prices = await predictionMarketContract.methods.getLatestPrices().call();
+  return {
+    ethPrice: Web3.utils.fromWei(prices.ethPrice, 'ether'),
+    btcPrice: Web3.utils.fromWei(prices.btcPrice, 'ether')
+  };
+};
+
+export { web3, predictionMarketContract, initWeb3, getLatestPrices };
