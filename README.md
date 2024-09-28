@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# Decentralized AI-Powered Prediction Market
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a decentralized application (dApp) that allows users to create and participate in prediction markets. It leverages [blockchain](https://en.wikipedia.org/wiki/Blockchain) technology for transparency and security, and integrates AI-powered analysis to help users make informed decisions.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Create new prediction markets
+- Place bets on existing markets
+- Get AI-powered analysis for each market
+- Decentralized architecture using [Ethereum](https://ethereum.org/) blockchain
+- User-friendly interface built with [React](https://reactjs.org/) and [Tailwind CSS](https://tailwindcss.com/)
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Before you begin, ensure you have met the following requirements:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- [Node.js](https://nodejs.org/api/punycode.html) (v12.0.0 or later)
+- [npm](https://docs.npmjs.com/cli/v9/using-npm/registry) (v6.0.0 or later)
+- [MetaMask](https://metamask.io/) or another Web3 provider installed in your browser
+- Access to an Ethereum network (local, testnet, or mainnet)
 
-### `npm test`
+## Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Clone the repository:
+   git clone https://github.com/manish2889/decentralized-prediction-market.git 
 
-### `npm run build`
+2. Navigate to the project directory:
+   cd decentralized-prediction-market
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Install the dependencies:
+    npm install
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4. Deploy the `PredictionMarket.sol` contract to your chosen Ethereum network.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+5. Update the contract address in `src/utils/web3.js`.
 
-### `npm run eject`
+## Usage
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Start the development server:
+   npm start
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. Open your browser and navigate to `http://localhost:3000`.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. Connect your Web3 wallet (e.g., MetaMask) to the application.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+4. Create new markets, place bets, and get AI-powered analysis!
 
-## Learn More
+## Smart Contract
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The `PredictionMarket.sol` contract handles the core functionality of the prediction market. It allows for:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Creating new markets
+- Placing bets
+- Resolving markets
+- Claiming rewards
 
-### Code Splitting
+Make sure to deploy this contract and update the address in the application before use.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Contributing
 
-### Analyzing the Bundle Size
+Contributions to the Decentralized AI-Powered Prediction Market are welcome. Please follow these steps:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### Making a Progressive Web App
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-### Advanced Configuration
+## Contact
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Your Name - your.email@example.com
 
-### Deployment
+Project Link: https://github.com/yourusername/decentralized-prediction-market
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Acknowledgements
 
-### `npm run build` fails to minify
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Web3.js](https://web3js.readthedocs.io/)
+- [Ethereum](https://ethereum.org/)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+
