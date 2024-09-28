@@ -72,9 +72,9 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Contact
 
-Your Name - your.email@example.com
+Your Name - http://t.me/callmemanish
 
-Project Link: https://github.com/yourusername/decentralized-prediction-market
+Project Link: https://github.com/manish2889/decentralized-prediction-market
 
 ## Acknowledgements
 
