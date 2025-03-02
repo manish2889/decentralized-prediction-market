@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { getWeb3, getPredictionMarketContract, getCurrentAccount, isMetaMaskInstalled, switchToSepoliaNetwork } from './utils/web3';
+import { getWeb3, getPredictionMarketContract, getCurrentAccount, isMetaMaskInstalled, switchToSepoliaNetwork, connectWallet } from './utils/web3';
 import CreateMarket from './components/CreateMarket';
 import MarketList from './components/MarketList';
 import PredictionForm from './components/PredictionForm';
@@ -19,6 +19,24 @@ const App = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [networkError, setNetworkError] = useState(false);
   const [contractError, setContractError] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const handleConnectWallet = async () => {
+    setIsConnecting(true);
+    try {
+      await connectWallet();
+      await switchToSepoliaNetwork();
+      const currentAccount = await getCurrentAccount();
+      setAccount(currentAccount);
+      setIsWalletConnected(true);
+      await refreshMarkets();
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+      setError(error.message || 'Failed to connect wallet');
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -28,34 +46,38 @@ const App = () => {
           return;
         }
 
-        const web3 = await getWeb3();
-        const currentAccount = await getCurrentAccount();
-        
-        // Check if we're on the correct network
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        if (chainId !== SEPOLIA_CHAIN_ID) {
+        // Check if already connected
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          const web3 = await getWeb3();
+          const currentAccount = await getCurrentAccount();
+          
+          // Check if we're on the correct network
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          if (chainId !== SEPOLIA_CHAIN_ID) {
+            try {
+              await switchToSepoliaNetwork();
+            } catch (error) {
+              setNetworkError(true);
+              setError('Please switch to Sepolia Test Network');
+              return;
+            }
+          }
+
+          // Try to get the contract
           try {
-            await switchToSepoliaNetwork();
+            await getPredictionMarketContract();
           } catch (error) {
-            setNetworkError(true);
-            setError('Please switch to Sepolia Test Network');
+            console.error('Contract error:', error);
+            setContractError(true);
+            setError('Smart contract not found on this network. Please make sure you have deployed the contract to Sepolia.');
             return;
           }
-        }
 
-        // Try to get the contract
-        try {
-          await getPredictionMarketContract();
-        } catch (error) {
-          console.error('Contract error:', error);
-          setContractError(true);
-          setError('Smart contract not found on this network. Please make sure you have deployed the contract to Sepolia.');
-          return;
+          setAccount(currentAccount);
+          setIsWalletConnected(true);
+          await refreshMarkets();
         }
-
-        setAccount(currentAccount);
-        setIsWalletConnected(true);
-        await refreshMarkets();
       } catch (err) {
         console.error('Initialization error:', err);
         setError(err.message || 'Failed to initialize application');
@@ -175,54 +197,107 @@ const App = () => {
               Decentralized Prediction Market
             </h1>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
-                Network: Sepolia
-              </span>
-              <span className="text-sm text-gray-500">
-                Connected: {account?.slice(0, 6)}...{account?.slice(-4)}
-              </span>
+              {!isWalletConnected ? (
+                <button
+                  onClick={handleConnectWallet}
+                  disabled={isConnecting}
+                  className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
+                    isConnecting ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isConnecting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Connecting...
+                    </>
+                  ) : (
+                    'Connect MetaMask'
+                  )}
+                </button>
+              ) : (
+                <>
+                  <span className="text-sm text-gray-500">
+                    Network: Sepolia
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Connected: {account?.slice(0, 6)}...{account?.slice(-4)}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="col-span-1 md:col-span-2 lg:col-span-3">
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <h2 className="text-lg font-medium text-gray-900">Create a New Market</h2>
-                  <CreateMarket refreshMarkets={refreshMarkets} />
-                </div>
-              </div>
+        {!isWalletConnected ? (
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              Welcome to Decentralized Prediction Market
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Connect your MetaMask wallet to start creating and participating in prediction markets.
+            </p>
+            <div className="flex flex-col items-center space-y-4">
+              <a
+                href="https://metamask.io/download/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-600 hover:text-primary-500"
+              >
+                Don't have MetaMask? Install it here →
+              </a>
+              <a
+                href="https://sepoliafaucet.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-600 hover:text-primary-500"
+              >
+                Need Sepolia ETH? Get it here →
+              </a>
             </div>
-
-            <div className="col-span-1 md:col-span-2">
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <h2 className="text-lg font-medium text-gray-900">Active Markets</h2>
-                  <MarketList markets={markets} selectMarket={selectMarket} />
-                </div>
-              </div>
-            </div>
-
-            {selectedMarket && (
-              <div className="col-span-1">
+          </div>
+        ) : (
+          <div className="px-4 py-6 sm:px-0">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="col-span-1 md:col-span-2 lg:col-span-3">
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                   <div className="px-4 py-5 sm:p-6">
-                    <h2 className="text-lg font-medium text-gray-900">Make a Prediction</h2>
-                    <PredictionForm
-                      selectedMarket={selectedMarket}
-                      marketId={selectedMarketId}
-                      onSuccess={refreshMarkets}
-                    />
+                    <h2 className="text-lg font-medium text-gray-900">Create a New Market</h2>
+                    <CreateMarket refreshMarkets={refreshMarkets} />
                   </div>
                 </div>
               </div>
-            )}
+
+              <div className="col-span-1 md:col-span-2">
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <h2 className="text-lg font-medium text-gray-900">Active Markets</h2>
+                    <MarketList markets={markets} selectMarket={selectMarket} />
+                  </div>
+                </div>
+              </div>
+
+              {selectedMarket && (
+                <div className="col-span-1">
+                  <div className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="px-4 py-5 sm:p-6">
+                      <h2 className="text-lg font-medium text-gray-900">Make a Prediction</h2>
+                      <PredictionForm
+                        selectedMarket={selectedMarket}
+                        marketId={selectedMarketId}
+                        onSuccess={refreshMarkets}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
