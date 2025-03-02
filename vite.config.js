@@ -11,4 +11,23 @@ export default defineConfig({
   define: {
     global: 'globalThis',
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'web3', 'react-hot-toast'],
+          utils: ['./src/utils/web3.js']
+        }
+      }
+    }
+  },
+  server: {
+    port: 3000,
+    strictPort: true,
+    host: true
+  }
 }) 
